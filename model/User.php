@@ -160,69 +160,37 @@ class User {
       echo "you need to log in first";
     }
     }
-    public function changePasswordEmail(){
-    $subject = "Furniche - reset your password";
-    $txt = "Hello world!";
-    $headers = "From: #" . "\r\n";
-
-
-    //Create token
-    $token = bin2hex(random_bytes(16));
-    //Add token to DB
-    include("connect.php");
-    try{
-    $sth=$db->prepare("INSERT INTO passtokens(token, username, expiry) VALUES (:token, :id, :expiry)");
-    $sth->bindparam(':id', $this->username, PDO::PARAM_STR, 64);
-    $sth->bindparam(':token', password_hash($token, PASSWORD_DEFAULT), PDO::PARAM_STR, 64);
-    $sth->bindparam(':', $this->firstname, PDO::PARAM_STR, 64);
-    $sth->execute();}
-    catch(PDOException $ex){
-        echo "A database error occurred";
-    }
-//send email
-    mail($this->email,$subject,$txt,$headers);
-    }
-    public function verifyToken($token){
-      include '../../view/connect.php';
-    if(isset($_SESSION)){
-      $sth=$db->prepare("SELECT token FROM passtokens WHERE username = :username AND expiry > CURDATE()");
-      $sth->bindparam(':username', $_SESSION["user"], PDO::PARAM_STR, 10);
-      $sth->execute();
-      $row=$sth->fetch(PDO::FETCH_ASSOC);
-      $this->username = $row['username'];
-      $this->firstname = $row['firstname'];
-      $this->surname = $row['surname'];
-      $this->email = $row['email'];
-      $this->address = $row['address'];
-      $this->phone = $row['phone'];
-      $this->admin = $row['admin'];
-      if($row != null && password_verify($token, $row)) 
-      {
-          return true;//success
-        }
-        else{
-          return false;
-        }
-      
-    }
-    }
     public function updatePassword(){
       include 'view/connect.php';
-          try{
-            $sth=$db->prepare("UPDATE users SET password = :password WHERE username = :username");
-            $sth->bindparam(':username', $this->username, PDO::PARAM_STR, 10);
-            $sth->bindparam(':password', $this->password, PDO::PARAM_STR, 64);
-            $sth->execute();
-            if($sth == true){
-              return true;
-            }
-        }catch(PDOException $ex){
+        try{
+          $sth=$db->prepare("SELECT secretAnswer FROM users WHERE userID = :uid");
+          $sth->bindparam(':uid', $SESSION["user"], PDO::PARAM_STR, 10);
+          $sth->execute();
+          $row=$sth->fetch(PDO::FETCH_ASSOC);
+            if(password_verify((answer), $row['secretAnswer']))
+            {
+              $sth=$db->prepare("UPDATE users SET password = :password WHERE username = :username");
+              $sth->bindparam(':username', $this->username, PDO::PARAM_STR, 10);
+              $sth->bindparam(':password', $this->password, PDO::PARAM_STR, 64);
+              $sth->execute();
+              if($sth == true){
+                return true;
+              }}
+              else{
+              ?>
+              <p>Incorrect answer</p>
+              <?php
+              return false;
+          }
+        }
+        catch(PDOException $ex)
+        {
           ?>
           <p>Sorry, a database error occurred.<p>
           <p>Error details: <em> <?= $ex->getMessage() ?></em></p>
           <?php
-        } 
         return false;
     }
+  }
 }
 ?>

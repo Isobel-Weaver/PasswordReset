@@ -45,11 +45,15 @@
 
                 <div class="input_box">
                     <input type="password" name="password2" required>
-                    <label>Confrim Password</label>
+                    <label>Confirm Password</label>
                 </div>
                 <script src="showPasswordScript.js"></script>
                 <label class="checkbox"><input type="checkbox" name="passcbx" onclick="showPassword()"><p>Show Password</p></label>
 
+                <div class="input_box">
+                    <input type="password" name="sanswer" required>
+                    <label>Please enter your mother's maiden name. This is so we can recover your account if you forget your password.</label>
+                </div>
                 <div class="link_box">
                     <div class="link">By creating an account you agree to <a href="#">Terms & Conditions</a></div>
                 </div>
